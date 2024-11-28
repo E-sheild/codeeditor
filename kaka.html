@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-Asha - Online Code Editor</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/dracula.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/material.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">K-Asha Editor</div>
+            <div class="controls">
+                <select id="language-select">
+                    <option value="html">HTML</option>
+                    <option value="css">CSS</option>
+                    <option value="javascript">JavaScript</option>
+                </select>
+                <select id="theme-select">
+                    <option value="default">Default</option>
+                    <option value="dracula">Dracula</option>
+                    <option value="monokai">Monokai</option>
+                    <option value="material">Material</option>
+                </select>
+                <button onclick="runCode()">Run Code</button>
+            </div>
+        </div>
+
+        <div class="editor-container">
+            <div class="editor-box">
+                <div class="editor-header">
+                    <span>Editor</span>
+                </div>
+                <textarea id="code-editor"></textarea>
+            </div>
+            <div class="preview-container">
+                <div class="editor-header">
+                    <span>Preview</span>
+                </div>
+                <iframe id="preview-frame" class="preview-frame"></iframe>
+            </div>
+        </div>
+
+        <div class="theme-selector">
+            <div class="color-option" style="background: #2c3e50;" onclick="changeTheme('#2c3e50', '#3498db')"></div>
+            <div class="color-option" style="background: #27ae60;" onclick="changeTheme('#27ae60', '#2ecc71')"></div>
+            <div class="color-option" style="background: #8e44ad;" onclick="changeTheme('#8e44ad', '#9b59b6')"></div>
+            <div class="color-option" style="background: #c0392b;" onclick="changeTheme('#c0392b', '#e74c3c')"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/css/css.min.js"></script>
+    <script>
+        let editor;
+        let currentLanguage = 'html';
+        
+        // Initialize CodeMirror
+        document.addEventListener('DOMContentLoaded', () => {
+            editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {
+                lineNumbers: true,
+                theme: 'default',
+                mode: 'xml',
+                autoCloseTags: true,
+                autoCloseBrackets: true,
+                tabSize: 2,
+                lineWrapping: true
+            });
+
+            // Set default content
+            editor.setValue(`<!DOCTYPE html>
+<html>
+<head>
+    <title>My Code</title>
+</head>
+<body>
+    <h1>Hello, World!</h1>
+</body>
+</html>`);
+
+            runCode();
+        });
+
+        // Language selection
+        document.getElementById('language-select').addEventListener('change', (e) => {
+            currentLanguage = e.target.value;
+            switch(currentLanguage) {
+                case 'html':
+                    editor.setOption('mode', 'xml');
+                    break;
+                case 'css':
+                    editor.setOption('mode', 'css');
+                    break;
+                case 'javascript':
+                    editor.setOption('mode', 'javascript');
+                    break;
+            }
+        });
+
+        // Theme selection
+        document.getElementById('theme-select').addEventListener('change', (e) => {
+            editor.setOption('theme', e.target.value);
+        });
+
+        // Run code
+        function runCode() {
+            const code = editor.getValue();
+            const preview = document.getElementById('preview-frame');
+            const previewDocument = preview.contentWindow.document;
+
+            previewDocument.open();
+            previewDocument.write(code);
+            previewDocument.close();
+        }
+
+        // Auto-run code when editing
+        editor.on('change', () => {
+            if (currentLanguage === 'html') {
+                runCode();
+            }
+        });
+
+        // Change theme colors
+        function changeTheme(primary, secondary) {
+            document.documentElement.style.setProperty('--primary-color', primary);
+            document.documentElement.style.setProperty('--secondary-color', secondary);
+        }
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                runCode();
+            }
+        });
+    </script>
+</body>
+</html>
